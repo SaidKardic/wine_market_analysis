@@ -5,6 +5,13 @@ WHERE ratings_count > 50000
 ORDER BY ratings_average DESC, ratings_count DESC
 LIMIT 10;
 
+-------
+
+SELECT id, name, ratings_average, ratings_count, ratings_average * ratings_count AS overall_score
+FROM wines
+ORDER BY overall_score DESC, ratings_average DESC, ratings_count DESC
+LIMIT 10;
+
 --Which country should get marketing?
 
 -- SELECT w.id, w.name, ratings_average, ratings_count, w.region_id, r.name as region_name, country_code, c.name, c.users_count, c.wines_count
@@ -26,24 +33,25 @@ LIMIT 10;
 -- GROUP BY country_code
 -- ORDER BY COUNT(country_code) DESC;
 
-SELECT *
+SELECT name, users_count, wines_count, users_count / wines_count AS user_wine_ratio
 FROM countries
-ORDER BY users_count
+ORDER BY user_wine_ratio
 LIMIT 3;
 
 -- Best winery to give a price?
 
-SELECT w1.id as wine_id, w1.name as wine_name, ratings_average, ratings_count, w2.name as winery_name
+SELECT winery_id, w2.name as winery_name, ROUND(AVG(ratings_average),2) AS avg_ratings, SUM(ratings_count) AS total_ratings_count, COUNT(w1.name) AS wine_count, SUM(ratings_count) / COUNT(w1.name) AS ratings_count_wine_ratio
 FROM wines AS w1
 INNER JOIN wineries AS w2
 ON w1.winery_id = w2.id
-WHERE ratings_count > 50000 
-ORDER BY ratings_average DESC, ratings_count DESC
+GROUP BY w2.name
+HAVING COUNT(w1.name) > 1
+ORDER BY ratings_count_wine_ratio DESC, avg_ratings DESC
 LIMIT 5;
 
 -- 5 keyword wines?
 
-SELECT keyword_id, k.name as keyword_name, keyword_type, group_name, count, wine_id, COUNT(wine_id), w.name as wine_name
+SELECT keyword_id, k.name as keyword_name, keyword_type, group_name, count, wine_id, w.name as wine_name, COUNT(wine_id)
 FROM keywords_wine as kw
 INNER JOIN keywords as k
 ON kw.keyword_id = k.id
@@ -52,7 +60,72 @@ ON kw.wine_id = w.id
 WHERE (k.name IN ('coffee', 'toast', 'green apple', 'cream', 'citrus'))
     AND (keyword_type = 'primary') AND (count > 10)
 GROUP BY wine_id
-ORDER BY COUNT(wine_id) DESC, wine_id;
+HAVING COUNT(wine_id) = 5
+ORDER BY wine_id;
+
+-- Flavour of each selected primary keyword?
+
+SELECT keyword_id, k.name as keyword_name, keyword_type, group_name
+FROM keywords_wine as kw
+INNER JOIN keywords as k
+ON kw.keyword_id = k.id
+WHERE (k.name IN ('coffee', 'toast', 'green apple', 'cream', 'citrus'))
+    AND (keyword_type = 'primary')
+GROUP BY k.name;
+
+-- Top 3 most common `grape` all over the world?
+
+SELECT grape_id, name AS grape_name, wines_count 
+FROM most_used_grapes_per_country as m
+INNER JOIN grapes AS g
+ON m.grape_id = g.id
+GROUP BY grape_id
+ORDER BY wines_count DESC
+LIMIT 3;
+
+-- Average wine rating for each country?
+
+SELECT c.name, c.users_count, c.wines_count, ROUND(AVG(ratings_average), 3) as avg_wine_rating
+FROM wines as w
+INNER JOIN regions as r
+ON w.region_id = r.id
+INNER JOIN countries as c 
+ON r.country_code = c.code
+GROUP BY c.name
+ORDER BY avg_wine_rating DESC;
+
+-- Average vintage rating for each country?
+
+SELECT c.name, c.users_count, c.wines_count, ROUND(AVG(v.ratings_average), 3) as avg_vintage_rating
+FROM vintages AS v
+INNER JOIN wines as w
+ON v.wine_id = w.id
+INNER JOIN regions as r
+ON w.region_id = r.id
+INNER JOIN countries as c 
+ON r.country_code = c.code
+GROUP BY c.name
+ORDER BY avg_vintage_rating DESC;
+
+-- Top 5 recommendations to the VIP customer who likes Cabernet Sauvignon?
+
+SELECT keyword_id, k.name as keyword_name, keyword_type, group_name, kw.count, wine_id, w.name as wine_name, AVG(count)
+FROM keywords_wine as kw
+INNER JOIN keywords as k
+ON kw.keyword_id = k.id
+INNER JOIN wines as w
+ON kw.wine_id = w.id
+WHERE (w.name = 'Cabernet Sauvignon') AND (count>=20) AND (keyword_type = 'primary')
+GROUP BY wine_id
+ORDER BY AVG(count) DESC, wine_id, count DESC;
+
+SELECT *--, AVG(user_structure_count)
+FROM wines
+WHERE name = 'Cabernet Sauvignon'
+ORDER BY ratings_count DESC;
+
+-- SELECT *
+-- FROM toplists;
 
 -- SELECT distinct w.name, w.id AS wine_id, w.ratings_average as wine_ratings_avg, v.ratings_average as vint_rat_avg, w.ratings_count, w.user_structure_count, v.price_euros
 -- FROM wines AS w
