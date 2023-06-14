@@ -127,10 +127,10 @@ WHERE name LIKE '%Cabernet Sauvignon%';
 SELECT id, name, acidity, intensity, sweetness, tannin, user_structure_count, ratings_average, ratings_count
 FROM wines
 WHERE name NOT LIKE '%Cabernet Sauvignon%' AND
-    (acidity BETWEEN 3.05 AND 3.55) AND
-    (intensity BETWEEN 4.35 AND 4.85) AND
+    (acidity BETWEEN 3.06 AND 3.57) AND
+    (intensity BETWEEN 4.34 AND 4.84) AND
     (sweetness BETWEEN 1.45 AND 1.95) AND
-    (tannin BETWEEN 3.15 AND 3.65)
+    (tannin BETWEEN 3.14 AND 3.64)
 ORDER BY user_structure_count DESC
 LIMIT 5;
 
