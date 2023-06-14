@@ -4,9 +4,7 @@ FROM wines
 WHERE ratings_count > 50000 
 ORDER BY ratings_average DESC, ratings_count DESC
 LIMIT 10;
-
 -------
-
 SELECT id, name, ratings_average, ratings_count, ratings_average * ratings_count AS overall_score
 FROM wines
 ORDER BY overall_score DESC, ratings_average DESC, ratings_count DESC
@@ -109,20 +107,32 @@ ORDER BY avg_vintage_rating DESC;
 
 -- Top 5 recommendations to the VIP customer who likes Cabernet Sauvignon?
 
-SELECT keyword_id, k.name as keyword_name, keyword_type, group_name, kw.count, wine_id, w.name as wine_name, AVG(count)
-FROM keywords_wine as kw
-INNER JOIN keywords as k
-ON kw.keyword_id = k.id
-INNER JOIN wines as w
-ON kw.wine_id = w.id
-WHERE (w.name = 'Cabernet Sauvignon') AND (count>=20) AND (keyword_type = 'primary')
-GROUP BY wine_id
-ORDER BY AVG(count) DESC, wine_id, count DESC;
+-- SELECT keyword_id, k.name as keyword_name, keyword_type, group_name, kw.count, wine_id, w.name as wine_name, AVG(count)
+-- FROM keywords_wine as kw
+-- INNER JOIN keywords as k
+-- ON kw.keyword_id = k.id
+-- INNER JOIN wines as w
+-- ON kw.wine_id = w.id
+-- WHERE (w.name LIKE '%Cabernet Sauvignon%') AND (count>=10) AND (keyword_type = 'primary')
+-- GROUP BY wine_id
+-- ORDER BY AVG(count) DESC, wine_id, count DESC;
 
-SELECT *--, AVG(user_structure_count)
+SELECT id, name, ROUND(AVG(acidity),2), ROUND(AVG(intensity),2), 
+    ROUND(AVG(sweetness),2), ROUND(AVG(tannin),2), 
+    ROUND(AVG(user_structure_count),2), ROUND(AVG(ratings_average),2), 
+    ROUND(AVG(ratings_count),2) 
 FROM wines
-WHERE name = 'Cabernet Sauvignon'
-ORDER BY ratings_count DESC;
+WHERE name LIKE '%Cabernet Sauvignon%';
+
+SELECT id, name, acidity, intensity, sweetness, tannin, user_structure_count, ratings_average, ratings_count
+FROM wines
+WHERE name NOT LIKE '%Cabernet Sauvignon%' AND
+    (acidity BETWEEN 3.05 AND 3.55) AND
+    (intensity BETWEEN 4.35 AND 4.85) AND
+    (sweetness BETWEEN 1.45 AND 1.95) AND
+    (tannin BETWEEN 3.15 AND 3.65)
+ORDER BY user_structure_count DESC
+LIMIT 5;
 
 -- SELECT *
 -- FROM toplists;
