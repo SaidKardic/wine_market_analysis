@@ -28,8 +28,7 @@ LIMIT 10;
 
 SELECT name, users_count, wines_count, ROUND((users_count * 1.0) / (wines_count * 1.0), 2) AS user_wine_ratio
 FROM countries
-ORDER BY user_wine_ratio
-LIMIT 5;
+ORDER BY user_wine_ratio;
 
 -- Best winery to give a price?
 
@@ -58,7 +57,7 @@ ORDER BY wine_id;
 
 -- Flavour of each selected primary keyword?
 
-SELECT keyword_id, k.name as keyword_name, keyword_type, group_name
+SELECT keyword_id, k.name as keyword_name, group_name
 FROM keywords_wine as kw
 INNER JOIN keywords as k
 ON kw.keyword_id = k.id
@@ -68,7 +67,7 @@ GROUP BY k.name;
 
 -- Top 3 most common `grape` all over the world?
 
-SELECT grape_id, name AS grape_name, wines_count 
+SELECT grape_id, name AS grape_name, wines_count
 FROM most_used_grapes_per_country as m
 INNER JOIN grapes AS g
 ON m.grape_id = g.id
@@ -119,6 +118,7 @@ SELECT id, name, ROUND(AVG(acidity),2), ROUND(AVG(intensity),2),
 FROM wines
 WHERE name LIKE '%Cabernet Sauvignon%';
 
+
 SELECT id, name, acidity, intensity, sweetness, tannin, user_structure_count, ratings_average, ratings_count
 FROM wines
 WHERE name NOT LIKE '%Cabernet Sauvignon%' AND
@@ -128,24 +128,3 @@ WHERE name NOT LIKE '%Cabernet Sauvignon%' AND
     (tannin BETWEEN 3.14 AND 3.64)
 ORDER BY user_structure_count DESC
 LIMIT 5;
-
--- SELECT *
--- FROM toplists;
-
--- SELECT distinct w.name, w.id AS wine_id, w.ratings_average as wine_ratings_avg, v.ratings_average as vint_rat_avg, w.ratings_count, w.user_structure_count, v.price_euros
--- FROM wines AS w
--- INNER JOIN vintages AS v
--- ON w.id = v.wine_id
--- GROUP BY w.name
--- ORDER BY w.name, wine_ratings_avg;
-
--- SELECT vintage_id, w.id AS wine_id, w.name, w.ratings_average, w.ratings_count, w.user_structure_count, v.name AS vintage_name, v.wine_id, v.ratings_average AS vintages_ratings_avg, v.ratings_count AS vintages_ratings_cnt, price_euros, vtr.top_list_id, t.name AS toplist_name, country_code, rank, previous_rank
--- FROM vintage_toplists_rankings AS vtr
--- INNER JOIN toplists AS t
--- ON vtr.top_list_id = t.id
--- INNER JOIN vintages AS v
--- ON v.id = vtr.vintage_id
--- INNER JOIN wines AS w
--- ON v.wine_id = w.id
--- ORDER BY w.ratings_average DESC, wine_id, w.ratings_count DESC, toplist_name DESC, rank DESC;
-
